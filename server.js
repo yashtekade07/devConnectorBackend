@@ -7,11 +7,11 @@ const path = require('path');
 const users = require('./routes/api/users');
 const profile = require('./routes/api/profile');
 const posts = require('./routes/api/posts');
-
+import cors from "cors"
 const app = express();
 
 // Body parser middleware
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // DB Config
@@ -25,7 +25,12 @@ mongoose
 
 // Passport middleware
 app.use(passport.initialize());
-
+app.use(
+  cors({
+  origin:process.env.FRONTEND_URL,
+  credentials:true,
+  methods:["GET","POST","PUT","DELETE"],
+}));
 // Passport Config
 require('./config/passport')(passport);
 
@@ -35,14 +40,14 @@ app.use('/api/profile', profile);
 app.use('/api/posts', posts);
 
 // Server static assets if in production
-if (process.env.NODE_ENV === 'production') {
-  // Set static folder
-  app.use(express.static('client/build'));
+// if (process.env.NODE_ENV === 'production') {
+//   // Set static folder
+//   app.use(express.static('client/build'));
 
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-  });
-}
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+//   });
+// }
 
 const port = process.env.PORT || 5000;
 
